@@ -1,6 +1,6 @@
 import { NO_PIECE, ALL_PIECES, SQUARE_WIDE_PX, BORDER_WIDTH_PX } from './pieces.mjs';
 
-const boardType = 'testing';
+const boardType = '5x6';
 
 const boards = {
   'withHole': [

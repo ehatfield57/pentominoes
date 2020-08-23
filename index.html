@@ -76,7 +76,33 @@
       }
     }
 
-    solve(cbShowSolution, cbShowStatus);
+    // solve(cbShowSolution, cbShowStatus);
+
+    if (window.Worker) {
+      const blobURL = URL.createObjectURL( new Blob([ '(',
+
+        function() {
+          onmessage = e => {
+            console.log('Hi Edward, worker received message:', e.data);
+            postMessage('That was fun');
+            // solve(cbShowSolution, cbStatus);
+          };
+        }.toString(),
+
+      ')()'], { type: 'application/javascript' }));
+
+      const myWorker = new Worker( blobURL );
+      URL.revokeObjectURL( blobURL );
+
+      myWorker.onMessage = (e) => {
+        console.log('Hi Edward message from worker, e.data:', e.data);
+        myWorker.terminate();
+      };
+
+      myWorker.postMessage({ state: 'go' });
+    } else {
+      console.log(`Your browser doesn't support web workers.`);
+    }
 
   </script>
 </html>
