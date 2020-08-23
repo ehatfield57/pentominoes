@@ -79,22 +79,9 @@
     // solve(cbShowSolution, cbShowStatus);
 
     if (window.Worker) {
-      const blobURL = URL.createObjectURL( new Blob([ '(',
+      const myWorker = new Worker('./modules/worker.mjs');
 
-        function() {
-          onmessage = e => {
-            console.log('Hi Edward, worker received message:', e.data);
-            postMessage('That was fun');
-            // solve(cbShowSolution, cbStatus);
-          };
-        }.toString(),
-
-      ')()'], { type: 'application/javascript' }));
-
-      const myWorker = new Worker( blobURL );
-      URL.revokeObjectURL( blobURL );
-
-      myWorker.onMessage = (e) => {
+      myWorker.onMessage = function(e) {
         console.log('Hi Edward message from worker, e.data:', e.data);
         myWorker.terminate();
       };
