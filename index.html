@@ -3,15 +3,32 @@
   <head>
     <meta charset='UTF-8'>
     <title>Sparse Matrix</title>
+    <style>
+      #board {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .sqrStyle {
+        background-color: white;
+        border-style: solid;
+        border-left-color: white;
+        border-right-color: white;
+        border-top-color: white;
+        border-bottom-color: white;
+      }
+    </style>
   </head>
   <body>
     <h1>Sparse Matrix Dance</h1>
-    <div id='main'></div>
+    <div id='board'></div>
   </body>
   <script type='module'>
     import { solve } from './modules/newSolver.mjs';
+    import { drawBoard, sqrId } from './modules/utilities.mjs';
+    import { SQUARE_WIDE_PX, SQUARE_HIGH_PX, BORDER_WIDTH_PX } from './modules/pieces.mjs';
+    import { BOARD_WIDE_SQ, BOARD_HIGH_SQ, BOARD_WIDTH_PX } from './modules/board.mjs';
 
-    const main = document.getElementById('main');
+    const boards = [];
     let solutionCount = 0;
 
     // Show status at this depth, should be from 0 to 11, 999 = never
@@ -24,14 +41,42 @@
     function cbShowSolution(solution) {
       solutionCount += 1;
       console.log(`Solution #${solutionCount}: ${stringifyBoard(solution)}`);
+      boards.push(solution);
     }
 
     function cbShowStatus(status, depth, head) {
       if (depth >= EXPOLORE_AT_DEPTH) {
         console.log(`Exploring at depth ${depth}: ${stringifyBoard(status)}`);
+        boards.push(status);
+      }
+    }
+
+    const interval = setInterval(() => {
+      if (boards.length > 0) {
+        drawBoard(boards.pop());
+      } else {
+        console.log('Done');
+        clearInterval(interval);
+      }
+    }, 500);
+
+    // Create the board html
+    const board = document.getElementById('board');
+    board.style.width = `${BOARD_WIDTH_PX}px`;
+
+    for (let y=0; y < BOARD_HIGH_SQ; y++) {
+      for (let x=0; x < BOARD_WIDE_SQ; x++) {
+        const div = document.createElement('div');
+        div.id = sqrId(x, y);
+        div.className = 'sqrStyle';
+        div.style.width = `${SQUARE_WIDE_PX}px`;
+        div.style.height = `${SQUARE_HIGH_PX}px`;
+        div.style.borderWidth = `${BORDER_WIDTH_PX}px`;
+        board.appendChild(div);
       }
     }
 
     solve(cbShowSolution, cbShowStatus);
+
   </script>
 </html>

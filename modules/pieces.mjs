@@ -1,5 +1,24 @@
 const PIECE_PARTS = 5;
 const NO_PIECE = ' ';
+const SQUARE_WIDE_PX = 50;
+const SQUARE_HIGH_PX = 50;
+const BORDER_WIDTH_PX = 2;
+
+const COLORS = {
+  p: '#aed887',
+  f: '#d3ac87',
+  i: '#e89899',
+  l: '#c0c376',
+  t: '#8ad7ad',
+  x: '#ad92d4',
+  w: '#9996ea',
+  y: '#bf6fc1',
+  z: '#d384ac',
+  u: '#77c2c0',
+  v: '#88add5',
+  n: '#9ded9a',
+  ' ': 'white',
+};
 
 const ALL_PIECES = {
   'p': [
@@ -91,5 +110,9 @@ const ALL_PIECES = {
 export {
   PIECE_PARTS,
   NO_PIECE,
-  ALL_PIECES
+  ALL_PIECES,
+  COLORS,
+  SQUARE_WIDE_PX,
+  BORDER_WIDTH_PX,
+  SQUARE_HIGH_PX
 };

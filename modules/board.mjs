@@ -1,4 +1,4 @@
-import { NO_PIECE, ALL_PIECES } from './pieces.mjs';
+import { NO_PIECE, ALL_PIECES, SQUARE_WIDE_PX, BORDER_WIDTH_PX } from './pieces.mjs';
 
 const boardType = 'testing';
 
@@ -117,6 +117,8 @@ const BOARD_HIGH_SQ = RAW_BOARD.length;
 const EMPTY_BOARD = initializeBoard(RAW_BOARD);
 const pieceKeys = Object.keys(PIECES);
 
+const BOARD_WIDTH_PX = BOARD_WIDE_SQ * (SQUARE_WIDE_PX + (2 * BORDER_WIDTH_PX));
+
 export {
   BOARD_WIDE_SQ,
   BOARD_HIGH_SQ,
@@ -124,5 +126,6 @@ export {
   RAW_BOARD,
   initializeBoard,
   PIECES,
-  pieceKeys
+  pieceKeys,
+  BOARD_WIDTH_PX
 };
