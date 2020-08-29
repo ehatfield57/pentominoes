@@ -26,7 +26,10 @@
       <button id='stopButton'>Stop</button>
       &nbsp;
       Explore To Depth (999 = never):
-      <input id='depth' value='999' />
+      <input id='depth' value='999' size='5' />
+      &nbsp;
+      Debug:
+      <input id='debug' type='checkbox' />
     </div>
     <br>
     <div id='board'></div>
@@ -44,7 +47,7 @@
 
     const { BOARD_WIDE_SQ, BOARD_HIGH_SQ, BOARD_WIDTH_PX } = useBoard(BOARD_TYPE || 'testing');
 
-    const boards = [];
+    let boards = [];
     let solutionCount = 0;
     let myWorker;
 
@@ -70,12 +73,17 @@
 
     document.getElementById('startButton').addEventListener('click', () => {
       ExploreToDepth = parseInt(document.getElementById('depth').value) || 0;
-      if (myWorker) myWorker.postMessage({ state: 'go' });
+      const debugChecked = document.getElementById('debug').checked;
+      if (myWorker) {
+        myWorker.postMessage({ state: 'go', debug: debugChecked });
+      }
     });
 
     document.getElementById('stopButton').addEventListener('click', () => {
+      console.log('Stop button pressed. Trying to stop...');
       if (myWorker) {
-        myWorker.postMessage({ state: 'stop' });
+        myWorker.terminate();
+        boards = [];
       }
     });
 
@@ -120,5 +128,7 @@
     } else {
       console.log(`Your browser doesn't support web workers.`);
     }
+
+    console.log('Ready to run...');
   </script>
 </html>

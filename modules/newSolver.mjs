@@ -23,19 +23,19 @@ const cbIsSolvedAlready = solution => {
 };
 
 const prepareDataStructure = () => {
-  const usedPieces = [];
+  const usedPieces = new Set();
   const dance = new NewDance()
 
   // Collect all pieces used on board into usedPieces
   pieceKeys.forEach(pKey => {
     const pPositions = generateAllPiecePositions(EMPTY_BOARD, pKey);
     Object.keys(pPositions).forEach(posKey => {
-      if (pPositions[posKey].length > 0) usedPieces.push(pKey);
+      if (pPositions[posKey].length > 0) usedPieces.add(pKey);
     });
   });
 
   // Create columns for the used pieces
-  usedPieces.forEach(pKey => dance.addColumn(pKey));
+  Array.from(usedPieces).forEach(pKey => dance.addColumn(pKey));
 
   // Create columns for all the board positions
   EMPTY_BOARD.forEach((row, y) => {
@@ -60,7 +60,7 @@ const prepareDataStructure = () => {
   return dance;
 }
 
-const solve = (showSolution, showStatus) => {
+const solve = (showSolution, showStatus, debug = false) => {
   const dance = prepareDataStructure();
 
   const cbShowStatus = (boardState, depth) => {
@@ -75,6 +75,7 @@ const solve = (showSolution, showStatus) => {
 
   // Solve
   dance.solve(0, {
+    debug,
     showSolution: cbShowSolution,
     showStatus: cbShowStatus,
     validateBoard: cbIsValidBoard,

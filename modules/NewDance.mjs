@@ -1,7 +1,7 @@
 // NewDance - Sparse Matrix
 import { fixLen } from './utilities.mjs';
 
-const DEBUG = false; // <-- Turn debugging on and off here
+let DEBUG = false;
 
 const COL_WIDTH = 5;
 
@@ -51,6 +51,7 @@ class NewDance {
   }
 
   solve(depth = 0, callbacks = {}) {
+    if (callbacks.debug) DEBUG = true;
     if (DEBUG) console.log('Hi Edward, depth:', depth, ', dumpMatrix:\n' + this.dumpMatrix() + '\n');
     if (DEBUG) console.log('Hi Edward, solution set so far:', this.solution.map(row => row.name).join(','));
 

@@ -11,9 +11,8 @@ const cbShowStatus = (status, depth) => {
 
 onmessage = e => {
   if (e.data.state === 'go') {
-    solve(cbShowSolution, cbShowStatus);
-  } else if (e.data.state === 'stop') {
-    foobar(); // Non-existant function so it blows up
+    console.log('Starting to solve...');
+    solve(cbShowSolution, cbShowStatus, e.data.debug || false);
   } else {
     postMessage({ error: 'Unknown state requested: ' + e.data.state })
   }
