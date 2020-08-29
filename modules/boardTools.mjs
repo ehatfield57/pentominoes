@@ -1,8 +1,10 @@
-
+import { BOARD_TYPE } from '../env.mjs';
 import { PIECE_PARTS, NO_PIECE } from './pieces.mjs';
 import { moveTopLeft, rotate, stringify, flip, parse } from  './pieceTools.mjs';
-import { BOARD_WIDE_SQ, BOARD_HIGH_SQ, PIECES } from './board.mjs';
+import { useBoard } from './board.mjs';
 import { copy } from './utilities.mjs';
+
+const { BOARD_WIDE_SQ, BOARD_HIGH_SQ, PIECES } = useBoard(BOARD_TYPE || 'testing');
 
 const MARK_SQUARE = '*';
 const allNormalizedVariations = {};

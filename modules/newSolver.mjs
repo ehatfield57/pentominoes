@@ -1,6 +1,6 @@
-
+import { BOARD_TYPE } from '../env.mjs';
 import { NO_PIECE } from './pieces.mjs';
-import { EMPTY_BOARD, pieceKeys } from './board.mjs';
+import { useBoard } from './board.mjs';
 import { generateAllPiecePositions, deadAreaOnBoard, countEmptySquares } from './boardTools.mjs';
 import { NewDance } from './NewDance.mjs';
 import {
@@ -10,6 +10,7 @@ import {
   isUniqueSolution
 } from './solverTools.mjs';
 
+const { EMPTY_BOARD, pieceKeys } = useBoard(BOARD_TYPE || 'testing');
 
 const cbIsValidBoard = solution => {
   const deadArea = deadAreaOnBoard(convertFromDanceToBoardPosition(solution));
@@ -59,11 +60,11 @@ const prepareDataStructure = () => {
   return dance;
 }
 
-const solve = (showSolution, showStatus) => {
+const solve = (showSolution, showStatus, cbFlash) => {
   const dance = prepareDataStructure();
 
-  const cbShowStatus = (boardState, depth, head) => {
-    return showStatus(convertFromDanceToBoardPosition(boardState), depth, head);
+  const cbShowStatus = (boardState, depth) => {
+    return showStatus(convertFromDanceToBoardPosition(boardState), depth);
   };
 
   const cbShowSolution = solution => {
@@ -77,7 +78,8 @@ const solve = (showSolution, showStatus) => {
     showSolution: cbShowSolution,
     showStatus: cbShowStatus,
     validateBoard: cbIsValidBoard,
-    isSolvedAlready: cbIsSolvedAlready
+    isSolvedAlready: cbIsSolvedAlready,
+    flashPiece: cbFlash
   });
 };
 

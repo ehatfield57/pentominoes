@@ -1,5 +1,8 @@
-import { BOARD_WIDE_SQ, BOARD_HIGH_SQ } from './board.mjs';
+import { BOARD_TYPE } from '../env.mjs';
+import { useBoard } from './board.mjs';
 import { COLORS } from './pieces.mjs';
+
+const { BOARD_WIDE_SQ, BOARD_HIGH_SQ } = useBoard(BOARD_TYPE || 'testing');
 
 const COLUMN_WIDTH = 4;
 

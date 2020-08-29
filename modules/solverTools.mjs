@@ -1,8 +1,10 @@
-
+import { BOARD_TYPE } from '../env.mjs';
 import { NO_PIECE, PIECE_PARTS } from './pieces.mjs';
-import { EMPTY_BOARD } from './board.mjs';
+import { useBoard } from './board.mjs';
 import { wanderAndCountEmpty, allNormalizedVariations } from './boardTools.mjs';
 import { copy } from './utilities.mjs';
+
+const { EMPTY_BOARD } = useBoard(BOARD_TYPE || 'testing');
 
 const solutions = {};
 

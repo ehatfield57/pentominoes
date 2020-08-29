@@ -1,7 +1,9 @@
-
+import { BOARD_TYPE } from '../env.mjs';
 import { PIECE_PARTS } from './pieces.mjs';
 import { copy } from './utilities.mjs';
-import { PIECES } from './board.mjs';
+import { useBoard } from './board.mjs';
+
+const { PIECES } = useBoard(BOARD_TYPE || 'testing');
 
 const emptyGroup = ' '.repeat(PIECE_PARTS);
 
