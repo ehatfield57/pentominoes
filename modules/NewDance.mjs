@@ -1,7 +1,8 @@
 // NewDance - Sparse Matrix
 import { fixLen } from './utilities.mjs';
 
-const DEBUG = true;
+const DEBUG = false; // <-- Turn debugging on and off here
+
 const COL_WIDTH = 5;
 
 class NewDance {
@@ -65,7 +66,6 @@ class NewDance {
         if (row.enabled) {
           row.enabled = false;
           hidden.push(row);
-          if (callbacks['flashPiece']) callbacks['flashPiece'](row);
           if (DEBUG) console.log('Hi Edward, hidding row:', row.name);
 
           for (let cIdx = 0; cIdx < row.columns.length; cIdx++) {
@@ -80,7 +80,6 @@ class NewDance {
                 if (hidableRow.enabled) {
                   hidableRow.enabled = false;
                   hidden.push(hidableRow);
-                  if (callbacks['flashPiece']) callbacks['flashPiece'](hidableRow);
                   if (DEBUG) console.log('Hi Edward, hidding hidable row:', hidableRow.name);
                 }
               }

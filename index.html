@@ -15,15 +15,27 @@
         border-right-color: white;
         border-top-color: white;
         border-bottom-color: white;
-        transition-property: background-color;
-        transition-duration: 0.5s;
       }
     </style>
   </head>
-  <body>
+  <body onunload='terminateWorker();'>
     <h1>Sparse Matrix Dance</h1>
+    <div>
+      <button id='startButton'>Start</button>
+      &nbsp;
+      <button id='stopButton'>Stop</button>
+      &nbsp;
+      Explore To Depth (999 = never):
+      <input id='depth' value='999' />
+    </div>
+    <br>
     <div id='board'></div>
   </body>
+  <script>
+    function terminateWorker() {
+      if (myWorker) myWorker.terminate();
+    }
+  </script>
   <script type='module'>
     import { BOARD_TYPE } from './env.mjs';
     import { drawBoard, sqrId } from './modules/utilities.mjs';
@@ -33,12 +45,11 @@
     const { BOARD_WIDE_SQ, BOARD_HIGH_SQ, BOARD_WIDTH_PX } = useBoard(BOARD_TYPE || 'testing');
 
     const boards = [];
-    const flashers = [];
     let solutionCount = 0;
     let myWorker;
 
     // Show status at this depth, should be from 0 to 11, 999 = never
-    const EXPOLORE_AT_DEPTH = 999;
+    let ExploreToDepth = 999;
 
     function stringifyBoard(board) {
       return `\n${board.map(row => row.join(' ')).join('\n')}\n`;
@@ -51,46 +62,28 @@
     }
 
     function cbShowStatus(status, depth) {
-      if (depth >= EXPOLORE_AT_DEPTH) {
+      if (depth >= ExploreToDepth) {
         console.log(`Exploring at depth ${depth}: ${stringifyBoard(status)}`);
         boards.push(status);
       }
     }
 
-    function cbFlash(row) {
-      flashers.push(row.columns);
-    }
+    document.getElementById('startButton').addEventListener('click', () => {
+      ExploreToDepth = parseInt(document.getElementById('depth').value) || 0;
+      if (myWorker) myWorker.postMessage({ state: 'go' });
+    });
 
-    const flashInterval = setInterval(() => {
-      if (flashers.length > 0) {
-        const columns = flashers.pop();
-        let theBackgroundColor = 'blue';
-        columns.forEach(item => {
-          const xy = item.split(',');
-          if (xy.length === 2) {
-            const el = document.getElementById(`sqr_${xy[0]}_${xy[1]}`);
-            const originalBackgroundColor = el.style.backgroundColor;
-            el.style.backgroundColor = theBackgroundColor;
-            setTimeout(() => el.style.backgroundColor = originalBackgroundColor, 500);
-          } else {
-            theBackgroundColor = COLORS[item];
-          }
-        });
-      } else {
-        console.log('No more flashers');
-        clearInterval(flashInterval);
+    document.getElementById('stopButton').addEventListener('click', () => {
+      if (myWorker) {
+        myWorker.postMessage({ state: 'stop' });
       }
-    }, 500);
+    });
 
     const interval = setInterval(() => {
       if (boards.length > 0) {
         drawBoard(boards.pop());
-      } else {
-        console.log('Done');
-        if (myWorker) myWorker.terminate();
-        clearInterval(interval);
       }
-    }, 4000);
+    }, 500);
 
     // Create the board html
     const board = document.getElementById('board');
@@ -120,15 +113,10 @@
           case('cbShowSolution'):
             cbShowSolution(JSON.parse(e.data.data));
             break;
-          case('cbFlash'):
-            cbFlash(JSON.parse(e.data.data));
-            break;
           default:
             console.log('Uncaught message from worker, e:', e.data);
         }
       });
-
-      myWorker.postMessage({ state: 'go' });
     } else {
       console.log(`Your browser doesn't support web workers.`);
     }

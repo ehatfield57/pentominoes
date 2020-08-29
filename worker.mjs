@@ -9,13 +9,9 @@ const cbShowStatus = (status, depth) => {
   postMessage({ callback: 'cbShowStatus', data: { status: JSON.stringify(status), depth } });
 };
 
-const cbFlash = (row) => {
-  postMessage({ callback: 'cbFlash', data: JSON.stringify(row) });
-};
-
 onmessage = e => {
   if (e.data.state === 'go') {
-    solve(cbShowSolution, cbShowStatus, cbFlash);
+    solve(cbShowSolution, cbShowStatus);
   } else if (e.data.state === 'stop') {
     foobar(); // Non-existant function so it blows up
   } else {

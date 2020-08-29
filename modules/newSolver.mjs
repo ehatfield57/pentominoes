@@ -60,7 +60,7 @@ const prepareDataStructure = () => {
   return dance;
 }
 
-const solve = (showSolution, showStatus, cbFlash) => {
+const solve = (showSolution, showStatus) => {
   const dance = prepareDataStructure();
 
   const cbShowStatus = (boardState, depth) => {
@@ -78,8 +78,7 @@ const solve = (showSolution, showStatus, cbFlash) => {
     showSolution: cbShowSolution,
     showStatus: cbShowStatus,
     validateBoard: cbIsValidBoard,
-    isSolvedAlready: cbIsSolvedAlready,
-    flashPiece: cbFlash
+    isSolvedAlready: cbIsSolvedAlready
   });
 };
 
