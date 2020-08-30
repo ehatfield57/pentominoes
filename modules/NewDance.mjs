@@ -16,6 +16,7 @@ class NewDance {
     this.colIndex = {};
     this.rowIndex = {};
     this.solution = [];
+    this.availableColumns = [];
   }
 
   addColumn(columnName, isPiece = false) {
@@ -61,7 +62,7 @@ class NewDance {
 
   notEnoughPieces() {
     const emptyColumns = new Set();
-    const availableColumns = new Set();
+    this.availableColumns = new Set();
 
     this.columns.forEach(column => {
       if (column.enabled && column.isPiece) emptyColumns.add(column.name);
@@ -72,18 +73,18 @@ class NewDance {
         row.columns.forEach(columnName => {
           if (emptyColumns.has(columnName)) {
             emptyColumns.delete(columnName);
-            availableColumns.add(columnName);
+            this.availableColumns.add(columnName);
           }
         });
       }
     });
 
     if (DEBUG) console.log('DEBUG: empty columns:', Array.from(emptyColumns));
-    if (DEBUG) console.log('DEBUG: available columns:', Array.from(availableColumns));
+    if (DEBUG) console.log('DEBUG: available columns:', Array.from(this.availableColumns));
     if (DEBUG) console.log('DEBUG: empty squares on board:', this.countEmptySquares());
-    if (DEBUG) console.log('DEBUG: playable pieces square count:', availableColumns.size * PIECE_PARTS);
+    if (DEBUG) console.log('DEBUG: playable pieces square count:', this.availableColumns.size * PIECE_PARTS);
 
-    return this.countEmptySquares() > (availableColumns.size * PIECE_PARTS);
+    return this.countEmptySquares() > (this.availableColumns.size * PIECE_PARTS);
   }
 
   solve(depth = 0, callbacks = {}) {
@@ -103,9 +104,14 @@ class NewDance {
       if (DEBUG) console.log('DEBUG: notEnoughPieces:', notEnough);
       if (notEnough) return;
 
-      for (let rowIdx = 0; rowIdx < this.rows.length; rowIdx++) {
-        const row = this.rows[rowIdx];
-        if (row.enabled) {
+      const justPieces = Array.from(this.availableColumns);
+      justPieces.forEach(columnName => {
+        const justRows = this.getColumn(columnName).rows.filter(rowName => this.getRow(rowName).enabled);
+        if (DEBUG) console.log('DEBUG: columnName:', columnName, ', justRows:', justRows.join(','));
+
+        for (let rIdx = 0; rIdx < justRows.length; rIdx++) {
+          const row = this.rows[justRows[rIdx]];
+
           row.enabled = false;
           hidden.push(row);
           if (DEBUG) console.log('DEBUG: hidding row:', row.name);
@@ -142,7 +148,7 @@ class NewDance {
           if (DEBUG) console.log('DEBUG: unhiding all hidden rows');
           hidden.forEach(item => item.enabled = true);
         }
-      }
+      });
     }
   }
 

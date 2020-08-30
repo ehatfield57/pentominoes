@@ -120,7 +120,6 @@
 
       myWorker.addEventListener('error', (e) => {
         console.log('Error in web worker syntax');
-        document.getElementById('boardType').textContext = 'BOOM: Failure in web worker code!';
         myWorker.terminate();
       });
 
