@@ -14,9 +14,9 @@ const { EMPTY_BOARD, pieceKeys } = useBoard(BOARD_TYPE || 'testing');
 
 const cbIsValidBoard = (solution, debug) => {
   const deadArea = deadAreaOnBoard(convertFromDanceToBoardPosition(solution));
-  if (debug && deadArea) console.log('Hi Edward, dead area found on board');
+  if (debug && deadArea) console.log('DEBUG: dead area found on board');
   const ghostPieces = phantomPiecesOnBoard(convertFromDanceToBoardPosition(solution));
-  if (debug && ghostPieces) console.log('Hi Edward, already played piece found on board');
+  if (debug && ghostPieces) console.log('DEBUG: already played piece found on board');
   return !deadArea && !ghostPieces;
 };
 

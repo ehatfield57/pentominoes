@@ -59,7 +59,7 @@ class NewDance {
     return BOARD_SQR_COUNT - (this.solution.length * PIECE_PARTS);
   }
 
-  emptyColumn() {
+  notEnoughPieces() {
     const emptyColumns = new Set();
     const availableColumns = new Set();
 
@@ -78,17 +78,18 @@ class NewDance {
       }
     });
 
-    if (DEBUG) console.log('Hi Edward, empty columns:', Array.from(emptyColumns));
-    if (DEBUG) console.log('Hi Edward, available columns:', Array.from(availableColumns));
-    if (DEBUG) console.log('Hi Edward, empty squares on board:', this.countEmptySquares());
-    if (DEBUG) console.log('Hi Edward, playable pieces square count:', BOARD_SQR_COUNT - (availableColumns.size * PIECE_PARTS));
-    return emptyColumns.size > 0;
+    if (DEBUG) console.log('DEBUG: empty columns:', Array.from(emptyColumns));
+    if (DEBUG) console.log('DEBUG: available columns:', Array.from(availableColumns));
+    if (DEBUG) console.log('DEBUG: empty squares on board:', this.countEmptySquares());
+    if (DEBUG) console.log('DEBUG: playable pieces square count:', availableColumns.size * PIECE_PARTS);
+
+    return this.countEmptySquares() > (availableColumns.size * PIECE_PARTS);
   }
 
   solve(depth = 0, callbacks = {}) {
     if (callbacks.debug) DEBUG = true;
-    if (DEBUG) console.log('Hi Edward, depth:', depth, ', dumpMatrix:\n' + this.dumpMatrix() + '\n');
-    if (DEBUG) console.log('Hi Edward, solution set so far:', this.solution.map(row => row.name).join(','));
+    if (DEBUG) console.log('DEBUG: depth:', depth, ', dumpMatrix:\n' + this.dumpMatrix() + '\n');
+    if (DEBUG) console.log('DEBUG: solution set so far:', this.solution.map(row => row.name).join(','));
 
     const enabledRow = this.rows.find(row => row.enabled);
     if (enabledRow === undefined) {
@@ -97,47 +98,48 @@ class NewDance {
       }
     } else {
       const hidden = [];
-      if (DEBUG) console.log('Hi Edward, emptyColumn:', this.emptyColumn());
-      if (DEBUG) console.log('Hi Edward, empty square count:', this.countEmptySquares());
 
+      const notEnough = this.notEnoughPieces();
+      if (DEBUG) console.log('DEBUG: notEnoughPieces:', notEnough);
+      if (notEnough) return;
 
       for (let rowIdx = 0; rowIdx < this.rows.length; rowIdx++) {
         const row = this.rows[rowIdx];
         if (row.enabled) {
           row.enabled = false;
           hidden.push(row);
-          if (DEBUG) console.log('Hi Edward, hidding row:', row.name);
+          if (DEBUG) console.log('DEBUG: hidding row:', row.name);
 
           for (let cIdx = 0; cIdx < row.columns.length; cIdx++) {
             const column = this.getColumn(row.columns[cIdx]);
             if (column.enabled) {
               column.enabled = false;
               hidden.push(column);
-              if (DEBUG) console.log('Hi Edward, hidding column:', column.name);
+              if (DEBUG) console.log('DEBUG: hidding column:', column.name);
 
               for(let rIdx = 0; rIdx < column.rows.length; rIdx++) {
                 const hidableRow = this.getRow(column.rows[rIdx]);
                 if (hidableRow.enabled) {
                   hidableRow.enabled = false;
                   hidden.push(hidableRow);
-                  if (DEBUG) console.log('Hi Edward, hidding hidable row:', hidableRow.name);
+                  if (DEBUG) console.log('DEBUG: hidding hidable row:', hidableRow.name);
                 }
               }
             }
           }
 
           this.solution.push(row);
-          if (DEBUG) console.log('Hi Edward, adding row to solution:', row.name);
+          if (DEBUG) console.log('DEBUG: adding row to solution:', row.name);
 
           if (!callbacks['validateBoard'] || callbacks['validateBoard'](this.solution, DEBUG)) {
             if (callbacks['showStatus']) callbacks['showStatus'](this.solution, depth, this);
             this.solve(depth + 1, callbacks);
           }
 
-          if (DEBUG) console.log('Hi Edward, removing row from solution:', row.name);
+          if (DEBUG) console.log('DEBUG: removing row from solution:', row.name);
           this.solution.pop(row);
 
-          if (DEBUG) console.log('Hi Edward, unhiding all hidden rows');
+          if (DEBUG) console.log('DEBUG: unhiding all hidden rows');
           hidden.forEach(item => item.enabled = true);
         }
       }

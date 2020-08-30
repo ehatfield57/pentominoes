@@ -25,7 +25,7 @@
       &nbsp;
       <button id='stopButton'>Stop</button>
       &nbsp;
-      Explore To Depth (999 = never):
+      Explore To Depth (0-12, or 999 = never):
       <input id='depth' value='999' size='5' />
       &nbsp;
       Debug:
@@ -33,6 +33,8 @@
     </div>
     <br>
     <div id='board'></div>
+    <br>
+    <h3>(Refresh the page to be able to restart the solver)</h3>
   </body>
   <script>
     function terminateWorker() {
@@ -117,7 +119,8 @@
       myWorker = new Worker( './worker.mjs', { type: 'module' } );
 
       myWorker.addEventListener('error', (e) => {
-        console.log('Hi Edward, error in web worker syntax');
+        console.log('Error in web worker syntax');
+        document.getElementById('boardType').textContext = 'BOOM: Failure in web worker code!';
         myWorker.terminate();
       });
 
