@@ -19,7 +19,7 @@
     </style>
   </head>
   <body onunload='terminateWorker();'>
-    <h1>Sparse Matrix Dance</h1>
+    <h1 id="boardType">Sparse Matrix Dance</h1>
     <div>
       <button id='startButton'>Start</button>
       &nbsp;
@@ -50,6 +50,10 @@
     let boards = [];
     let solutionCount = 0;
     let myWorker;
+
+    const title = document.getElementById('boardType');
+    const currentTitle = title.textContent;
+    title.textContent = `${currentTitle}: ${BOARD_TYPE}`;
 
     // Show status at this depth, should be from 0 to 11, 999 = never
     let ExploreToDepth = 999;
@@ -111,6 +115,11 @@
 
     if (window.Worker) {
       myWorker = new Worker( './worker.mjs', { type: 'module' } );
+
+      myWorker.addEventListener('error', (e) => {
+        console.log('Hi Edward, error in web worker syntax');
+        myWorker.terminate();
+      });
 
       myWorker.addEventListener('message', (e) => {
         switch(e.data.callback) {

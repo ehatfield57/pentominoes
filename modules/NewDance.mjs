@@ -1,8 +1,12 @@
 // NewDance - Sparse Matrix
+import { BOARD_TYPE } from '../env.mjs';
 import { fixLen } from './utilities.mjs';
+import { PIECE_PARTS } from './pieces.mjs';
+import { useBoard } from './board.mjs';
 
 let DEBUG = false;
 
+const { BOARD_SQR_COUNT } = useBoard(BOARD_TYPE || 'testing');
 const COL_WIDTH = 5;
 
 class NewDance {
@@ -14,13 +18,14 @@ class NewDance {
     this.solution = [];
   }
 
-  addColumn(columnName) {
+  addColumn(columnName, isPiece = false) {
     this.colIndex[columnName] = this.columns.length;
 
     this.columns.push({
       name: columnName,
       enabled: true,
-      rows: []
+      rows: [],
+      isPiece
     });
   }
 
@@ -50,6 +55,36 @@ class NewDance {
     });
   }
 
+  countEmptySquares() {
+    return BOARD_SQR_COUNT - (this.solution.length * PIECE_PARTS);
+  }
+
+  emptyColumn() {
+    const emptyColumns = new Set();
+    const availableColumns = new Set();
+
+    this.columns.forEach(column => {
+      if (column.enabled && column.isPiece) emptyColumns.add(column.name);
+    });
+
+    this.rows.forEach(row => {
+      if (row.enabled) {
+        row.columns.forEach(columnName => {
+          if (emptyColumns.has(columnName)) {
+            emptyColumns.delete(columnName);
+            availableColumns.add(columnName);
+          }
+        });
+      }
+    });
+
+    if (DEBUG) console.log('Hi Edward, empty columns:', Array.from(emptyColumns));
+    if (DEBUG) console.log('Hi Edward, available columns:', Array.from(availableColumns));
+    if (DEBUG) console.log('Hi Edward, empty squares on board:', this.countEmptySquares());
+    if (DEBUG) console.log('Hi Edward, playable pieces square count:', BOARD_SQR_COUNT - (availableColumns.size * PIECE_PARTS));
+    return emptyColumns.size > 0;
+  }
+
   solve(depth = 0, callbacks = {}) {
     if (callbacks.debug) DEBUG = true;
     if (DEBUG) console.log('Hi Edward, depth:', depth, ', dumpMatrix:\n' + this.dumpMatrix() + '\n');
@@ -62,6 +97,10 @@ class NewDance {
       }
     } else {
       const hidden = [];
+      if (DEBUG) console.log('Hi Edward, emptyColumn:', this.emptyColumn());
+      if (DEBUG) console.log('Hi Edward, empty square count:', this.countEmptySquares());
+
+
       for (let rowIdx = 0; rowIdx < this.rows.length; rowIdx++) {
         const row = this.rows[rowIdx];
         if (row.enabled) {
@@ -90,7 +129,7 @@ class NewDance {
           this.solution.push(row);
           if (DEBUG) console.log('Hi Edward, adding row to solution:', row.name);
 
-          if (!callbacks['validateBoard'] || callbacks['validateBoard'](this.solution)) {
+          if (!callbacks['validateBoard'] || callbacks['validateBoard'](this.solution, DEBUG)) {
             if (callbacks['showStatus']) callbacks['showStatus'](this.solution, depth, this);
             this.solve(depth + 1, callbacks);
           }

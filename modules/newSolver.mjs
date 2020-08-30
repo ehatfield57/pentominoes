@@ -12,9 +12,11 @@ import {
 
 const { EMPTY_BOARD, pieceKeys } = useBoard(BOARD_TYPE || 'testing');
 
-const cbIsValidBoard = solution => {
+const cbIsValidBoard = (solution, debug) => {
   const deadArea = deadAreaOnBoard(convertFromDanceToBoardPosition(solution));
+  if (debug && deadArea) console.log('Hi Edward, dead area found on board');
   const ghostPieces = phantomPiecesOnBoard(convertFromDanceToBoardPosition(solution));
+  if (debug && ghostPieces) console.log('Hi Edward, already played piece found on board');
   return !deadArea && !ghostPieces;
 };
 
@@ -35,13 +37,15 @@ const prepareDataStructure = () => {
   });
 
   // Create columns for the used pieces
-  Array.from(usedPieces).forEach(pKey => dance.addColumn(pKey));
+  let isPiece = true;
+  Array.from(usedPieces).forEach(pKey => dance.addColumn(pKey, isPiece));
 
   // Create columns for all the board positions
+  isPiece = false;
   EMPTY_BOARD.forEach((row, y) => {
     row.forEach((_, x) => {
       if (EMPTY_BOARD[y][x] === NO_PIECE) {
-        dance.addColumn(`${x},${y}`);
+        dance.addColumn(`${x},${y}`, isPiece);
       }
     });
   });

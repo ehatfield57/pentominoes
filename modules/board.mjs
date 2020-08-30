@@ -13,7 +13,7 @@ const boards = {
     [' ', '*', '*', '*', '*', '*', '*', '*', '*', ' '],
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
   ],
-  'standard': [
+  '6x10': [
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
     [' ', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', ' '],
     [' ', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', ' '],
@@ -69,8 +69,8 @@ const NoVee = JSON.parse(JSON.stringify(ALL_PIECES));
 delete(NoVee['v']);
 
 const boardConfigurations = {
-  'standard': {
-    board: boards.standard,
+  '6x10': {
+    board: boards['6x10'],
     pieces: ALL_PIECES
   },
   'withHole': {
@@ -118,6 +118,18 @@ const useBoard = (boardType) => {
 
   const BOARD_WIDTH_PX = BOARD_WIDE_SQ * (SQUARE_WIDE_PX + (2 * BORDER_WIDTH_PX));
 
+  const computeBoardSqrCount = () => {
+    let sqrCount = 0;
+    for (let y=0; y < RAW_BOARD.length; y++) {
+      for (let x=0; x < RAW_BOARD[0].length; x++) {
+        if (RAW_BOARD[y][x] === BOARD_SPOT) sqrCount += 1;
+      }
+    }
+    return sqrCount;
+  }
+  
+  const BOARD_SQR_COUNT = computeBoardSqrCount();
+
   return {
     BOARD_WIDE_SQ,
     BOARD_HIGH_SQ,
@@ -126,7 +138,8 @@ const useBoard = (boardType) => {
     initializeBoard,
     PIECES,
     pieceKeys,
-    BOARD_WIDTH_PX
+    BOARD_WIDTH_PX,
+    BOARD_SQR_COUNT
   }
 }
 
