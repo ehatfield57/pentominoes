@@ -87,6 +87,15 @@ class NewDance {
     return this.countEmptySquares() > (this.availableColumns.size * PIECE_PARTS);
   }
 
+  sortByFewestRows(justPieces) {
+    const counter = justPieces.reduce((accum, colName) => {
+      const column = this.getColumn(colName);
+      accum[colName] = column.rows.length;
+      return accum;
+    }, {});
+    return Object.keys(counter).sort((a,b) => counter[a] - counter[b]);
+  }
+
   solve(depth = 0, callbacks = {}) {
     if (callbacks.debug) DEBUG = true;
     if (DEBUG) console.log('DEBUG: depth:', depth, ', dumpMatrix:\n' + this.dumpMatrix() + '\n');
@@ -104,7 +113,7 @@ class NewDance {
       if (DEBUG) console.log('DEBUG: notEnoughPieces:', notEnough);
       if (notEnough) return;
 
-      const justPieces = Array.from(this.availableColumns);
+      const justPieces = this.sortByFewestRows(Array.from(this.availableColumns));
       justPieces.forEach(columnName => {
         const justRows = this.getColumn(columnName).rows.filter(rowName => this.getRow(rowName).enabled);
         if (DEBUG) console.log('DEBUG: columnName:', columnName, ', justRows:', justRows.join(','));

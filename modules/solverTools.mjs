@@ -130,6 +130,7 @@ const isUniqueSolution = (solution) => {
     solutions[stringifyBoard(flipVert(flipHoriz(sol)))] = solSignature;
     return true;
   } else {
+    console.log('Duplication solution found');
     return false;
   }
 };
