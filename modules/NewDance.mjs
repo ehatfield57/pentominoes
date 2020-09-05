@@ -24,7 +24,6 @@ class NewDance {
 
     this.columns.push({
       name: columnName,
-      enabled: true,
       rows: [],
       isPiece
     });
@@ -43,7 +42,6 @@ class NewDance {
       this.rowIndex[rowName] = this.rows.length;
       this.rows.push({
         name: rowName,
-        enabled: true,
         columns: []
       });
     }
@@ -60,16 +58,18 @@ class NewDance {
     return BOARD_SQR_COUNT - (this.solution.length * PIECE_PARTS);
   }
 
-  notEnoughPieces() {
+  notEnoughPieces(removedRows, removedColumns) {
     const emptyColumns = new Set();
     this.availableColumns = new Set();
 
     this.columns.forEach(column => {
-      if (column.enabled && column.isPiece) emptyColumns.add(column.name);
+      if (!removedColumns.has(column.name)) {
+        if (column.isPiece) emptyColumns.add(column.name);
+      }
     });
 
     this.rows.forEach(row => {
-      if (row.enabled) {
+      if (!removedRows.has(row.name)) {
         row.columns.forEach(columnName => {
           if (emptyColumns.has(columnName)) {
             emptyColumns.delete(columnName);
@@ -96,47 +96,48 @@ class NewDance {
     return Object.keys(counter).sort((a,b) => counter[a] - counter[b]);
   }
 
-  solve(depth = 0, callbacks = {}) {
+  solve(depth = 0, callbacks = {}, removedRows = new Set(), removedColumns = new Set()) {
     if (callbacks.debug) DEBUG = true;
-    if (DEBUG) console.log('DEBUG: depth:', depth, ', dumpMatrix:\n' + this.dumpMatrix() + '\n');
+    if (DEBUG) console.log('DEBUG: depth:', depth, ', dumpMatrix:\n' + this.dumpMatrix(removedRows, removedColumns) + '\n');
     if (DEBUG) console.log('DEBUG: solution set so far:', this.solution.map(row => row.name).join(','));
+    if (DEBUG) console.log('DEBUG: removedRows:', removedRows);
+    if (DEBUG) console.log('DEBUG: removedColumns:', removedColumns);
 
-    const enabledRow = this.rows.find(row => row.enabled);
-    if (enabledRow === undefined) {
+    if (this.rows.length === removedRows.size) {
       if (callbacks['isSolvedAlready'] && callbacks['isSolvedAlready'](this.solution)) {
         callbacks['showSolution'](this.solution);
       }
     } else {
-      const hidden = [];
-
-      const notEnough = this.notEnoughPieces();
+      const notEnough = this.notEnoughPieces(removedRows, removedColumns);
       if (DEBUG) console.log('DEBUG: notEnoughPieces:', notEnough);
       if (notEnough) return;
 
       const justPieces = this.sortByFewestRows(Array.from(this.availableColumns));
       justPieces.forEach(columnName => {
-        const justRows = this.getColumn(columnName).rows.filter(rowName => this.getRow(rowName).enabled);
-        if (DEBUG) console.log('DEBUG: columnName:', columnName, ', justRows:', justRows.join(','));
+        const newRemovedRows = [];
+        const newRemovedColumns = [];
+        const justRows = this.getColumn(columnName).rows.filter(rowName => {
+          const foo = !removedRows.has(rowName);
+          return foo;
+        });
+        if (DEBUG) console.log('DEBUG: columnName:', columnName, ', just available rows:', justRows.join(','));
 
         for (let rIdx = 0; rIdx < justRows.length; rIdx++) {
           const row = this.rows[justRows[rIdx]];
 
-          row.enabled = false;
-          hidden.push(row);
+          newRemovedRows.push(row.name);
           if (DEBUG) console.log('DEBUG: hidding row:', row.name);
 
           for (let cIdx = 0; cIdx < row.columns.length; cIdx++) {
             const column = this.getColumn(row.columns[cIdx]);
-            if (column.enabled) {
-              column.enabled = false;
-              hidden.push(column);
+            if (!removedColumns.has(column.name)) {
+              newRemovedColumns.push(column.name);
               if (DEBUG) console.log('DEBUG: hidding column:', column.name);
 
               for(let rIdx = 0; rIdx < column.rows.length; rIdx++) {
                 const hidableRow = this.getRow(column.rows[rIdx]);
-                if (hidableRow.enabled) {
-                  hidableRow.enabled = false;
-                  hidden.push(hidableRow);
+                if (!removedRows.has(hidableRow.name)) {
+                  newRemovedRows.push(hidableRow.name);
                   if (DEBUG) console.log('DEBUG: hidding hidable row:', hidableRow.name);
                 }
               }
@@ -148,22 +149,23 @@ class NewDance {
 
           if (!callbacks['validateBoard'] || callbacks['validateBoard'](this.solution, DEBUG)) {
             if (callbacks['showStatus']) callbacks['showStatus'](this.solution, depth, this);
-            this.solve(depth + 1, callbacks);
+            this.solve(depth + 1,
+              callbacks,
+              new Set(Array.from(removedRows).concat(newRemovedRows)),
+              new Set(Array.from(removedColumns).concat(newRemovedColumns))
+            );
           }
 
           if (DEBUG) console.log('DEBUG: removing row from solution:', row.name);
           this.solution.pop(row);
-
-          if (DEBUG) console.log('DEBUG: unhiding all hidden rows');
-          hidden.forEach(item => item.enabled = true);
         }
       });
     }
   }
 
-  dumpMatrix() {
-    const enabledColumns = this.columns.filter(col => col.enabled);
-    const enabledRows = this.rows.filter(row => row.enabled);
+  dumpMatrix(removedRows, removedColumns) {
+    const enabledColumns = this.columns.filter(col => !removedColumns.has(col.name));
+    const enabledRows = this.rows.filter(row => !removedRows.has(row.name));
 
     const zero = fixLen('0', COL_WIDTH);
     const one = fixLen('1', COL_WIDTH);
@@ -179,7 +181,7 @@ class NewDance {
       row.columns.forEach((columnName, j) => {
         const col = this.getColumn(columnName);
         const colIndex = enabledColumns.findIndex(col => col.name === columnName);
-        if (row.enabled && col.enabled) {
+        if (!removedColumns.has(col.name)) {
           matrix[rowIndex + 1][colIndex + 1] = one;
         }
       });

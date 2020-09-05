@@ -17,6 +17,9 @@
         border-bottom-color: white;
       }
     </style>
+    <!-- These two scripts are here to help detect errors in the web worker code -->
+    <script type="module" src="./modules/newSolver.mjs"></script>
+    <script type="module" src="./modules/newDance.mjs"></script>
   </head>
   <body onunload='terminateWorker();'>
     <h1 id="boardType">Sparse Matrix Dance</h1>
