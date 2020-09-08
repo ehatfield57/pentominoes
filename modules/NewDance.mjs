@@ -116,9 +116,9 @@ class NewDance {
       justPieces.forEach(columnName => {
         const newRemovedRows = [];
         const newRemovedColumns = [];
+
         const justRows = this.getColumn(columnName).rows.filter(rowName => {
-          const foo = !removedRows.has(rowName);
-          return foo;
+          return !removedRows.has(rowName);
         });
         if (DEBUG) console.log('DEBUG: columnName:', columnName, ', just available rows:', justRows.join(','));
 
@@ -130,12 +130,14 @@ class NewDance {
 
           for (let cIdx = 0; cIdx < row.columns.length; cIdx++) {
             const column = this.getColumn(row.columns[cIdx]);
+
             if (!removedColumns.has(column.name)) {
               newRemovedColumns.push(column.name);
               if (DEBUG) console.log('DEBUG: hidding column:', column.name);
 
               for(let rIdx = 0; rIdx < column.rows.length; rIdx++) {
                 const hidableRow = this.getRow(column.rows[rIdx]);
+
                 if (!removedRows.has(hidableRow.name)) {
                   newRemovedRows.push(hidableRow.name);
                   if (DEBUG) console.log('DEBUG: hidding hidable row:', hidableRow.name);

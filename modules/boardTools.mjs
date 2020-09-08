@@ -32,7 +32,7 @@ const uniqueVariations = (orig_piece) => {
     uniques[key] = piece;
   }
 
-  fillFoobar(Object.keys(uniques));
+  fillNormalizedVariations(Object.keys(uniques));
 
   return Object.values(uniques);
 };
@@ -43,7 +43,7 @@ const sortSquares = (piece) => {
   });
 };
 
-const fillFoobar = uniques => {
+const fillNormalizedVariations = uniques => {
   for (let i=0; i < uniques.length; i++) {
     let pKey = '';
     const rows = uniques[i].split(',');
